@@ -2730,8 +2730,8 @@ E[n_{BB}|y,\hat{\theta}^{(i)}] = \frac{\hat{q}^{i}}{2 - \hat{q}^{i} - 2 \hat{p}^
 <a class="sourceLine" id="cb97-4" data-line-number="4">ts &lt;-<span class="st"> </span><span class="kw">microbenchmark</span>(<span class="dt">rw.MetropolisR =</span> <span class="kw">rw.Metropolis</span>(sigma,x_<span class="dv">0</span>,N), <span class="dt">rw.MetropolisCpp =</span> <span class="kw">rw_MetropolisC</span>(sigma,x_<span class="dv">0</span>,N))</a>
 <a class="sourceLine" id="cb97-5" data-line-number="5"><span class="kw">summary</span>(ts)[,<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">6</span>)]</a>
 <a class="sourceLine" id="cb97-6" data-line-number="6"><span class="co">#&gt;               expr         lq    median         uq</span></a>
-<a class="sourceLine" id="cb97-7" data-line-number="7"><span class="co">#&gt; 1   rw.MetropolisR 18838.7730 24447.716 26851.7175</span></a>
-<a class="sourceLine" id="cb97-8" data-line-number="8"><span class="co">#&gt; 2 rw.MetropolisCpp   683.0025   694.418   747.3195</span></a></code></pre></div>
+<a class="sourceLine" id="cb97-7" data-line-number="7"><span class="co">#&gt; 1   rw.MetropolisR 19016.1385 25848.399 27841.8570</span></a>
+<a class="sourceLine" id="cb97-8" data-line-number="8"><span class="co">#&gt; 2 rw.MetropolisCpp   681.6075   693.549   740.6025</span></a></code></pre></div>
 <p>As is shown above, code implmented by Rcpp use substantially less time to generate the same quantity of samples.</p>
 <p><strong>4. Comment your results.</strong></p>
 <p>As is shown in the result above, we can generate our samples both by simply R function or by a Rcpp function. However, as you can see, conducting this task by C++ is much effective especially when “for” loops are used.</p>

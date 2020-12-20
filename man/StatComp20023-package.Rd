@@ -3,32 +3,15 @@
 \alias{StatComp20023}
 \docType{package}
 \title{
-  A short title line describing what the package does
+  Homework R package of Li Chen 20023
 }
 \description{
-  A more detailed description of what the package does. A length
-  of about one to five lines is recommended.
-}
-\details{
-  This section should provide a more detailed overview of how to use the
-  package, including the most important functions.
+The Package has 2 main roles: Sparse recovery in high-dimensional statistics and anomaly detection in spatial statistics. Two vignettes are available, one for regular assignments and one for my own functions.
 }
 \author{
-Your Name, email optional.
+Li Chen, cl1999@mail.ustc.edu.cn.
 
-Maintainer: Your Name <your@email.com>
+Maintainer: Li Chen <cl1999@mail.ustc.edu.cn>
 }
-\references{
-  This optional section can contain literature or other references for
-  background information.
-}
+
 \keyword{ package }
-\seealso{
-  Optional links to other man pages
-}
-\examples{
-  \dontrun{
-     ## Optional simple examples of the most important functions
-     ## These can be in \dontrun{} and \donttest{} blocks.   
-  }
-}
