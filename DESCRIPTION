@@ -1,0 +1,38 @@
+Package: StatComp20023
+Type: Package
+Title: Statistical Computing Homework of LiChen 20023
+Version: 1.0
+Date: 2020-12-15
+Author: Li Chen
+Maintainer: Li Chen <cl1999@mail.ustc.edu.cn>
+Description: Statistical Computing Homework of Li Chen. 
+License: GPL (>= 2)
+Imports: 
+    Rcpp,
+    ggplot2,
+    gridExtra,
+    stats,
+    microbenchmark,
+    rmutil,
+    kableExtra,
+    MASS,
+    boot,
+    bootstrap,
+    DAAG,
+    doParallel,
+    RANN,
+    energy,
+    Ball,
+    gstat,
+    autoFRK
+LinkingTo: Rcpp
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+Depends: 
+    R (>= 2.10)
+URL: http://github.com/LiChen0610/StatComp20023
+BugReports: http://github.com/LiChen0610/StatComp20023/issues

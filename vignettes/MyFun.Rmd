@@ -1,0 +1,281 @@
+---
+title: "MyFun"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+author: "Li Chen 20023"
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{MyFun}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: ref.bib
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(StatComp20023)
+```
+
+# Vignette for my functions
+
+## Sequentially and iteratively reweighted squares algorithm for sparse recovery
+
+The algorithm was proposed by Jinchi Lv and Yingying Fan [@SICA]
+
+Consider the linear equation 
+$$y = X \beta$$
+Our aim is to find the minimum $L_0$ (sparsest possible) solution to the linear equation, which is not an easy task when the matrix $X'X$ is singular or close to singular. Here we assume the identifiability of $\beta_0$, in the sense that the equation $X\beta_0 = X\beta, \beta \in R^p$ entails either $\beta = \beta_0$ or ${||\beta||}_0 > {||\beta_0||}_0$.
+
+Lv and Fan propose an equivalence of sparse recovery to 
+$$
+\begin{array}{ll}
+\min & \sum_{j=1}^{p} \rho_a \left(\left|\beta_{j}\right|\right) \\
+\text { s.t. } & \mathbf{y}=\mathbf{X} \boldsymbol{\beta}
+\end{array}
+$$
+under some mild conditions, where 
+
+\begin{equation}
+        \rho_{a}(t)=\left\{\begin{array}{ll}
+\frac{(a+1) t}{a+t}=\left(\frac{t}{a+t}\right) I(t \neq 0)+\left(\frac{a}{a+t}\right) t, & a \in(0, \infty) \\
+I(t \neq 0), & a=0 \\
+t, & a=\infty
+\end{array}\right.
+\end{equation}
+
+Replace the $\rho$-regularization problem by a  weighted $\ell_{2}$ penalty $\rho(\boldsymbol{\beta})=\boldsymbol{\beta}^{T} D^{-1} \boldsymbol{\beta},$ where the $j$-th diagonal element of the diagonal matrix $D^{-1}$ is $d_{j}^{-1}=\rho_{a}\left(\left|\beta_{j}\right|\right) / \beta_{j}^{2}, j=1, \ldots, p .$ Then the minimization problem
+$$
+\begin{array}{ll}
+\min & \sum_{j=1}^{p} \rho_{a}\left(\left|\beta_{j}\right|\right)=\boldsymbol{\beta}^{T} D^{-1} \boldsymbol{\beta} \\
+\text { s.t. } & \mathbf{y}=\mathbf{X} \boldsymbol{\beta}
+\end{array}
+$$
+has explicit solution 
+$$
+\beta^{*}=D^{1 / 2}\left(D^{1 / 2} \mathbf{X}^{T} \mathbf{X} D^{1 / 2}\right)^{+} D^{1 / 2} \mathbf{X}^{T} \mathbf{y}=D \mathbf{X}^{T}\left(\mathbf{X} D \mathbf{X}^{T}\right)^{+} \mathbf{y}
+$$
+From this, the sequentially and iteratively reweighted squares (SIRS) algorithm is proposed for solving sparse recovery problem with $\rho_{a}$ penalty.
+
+
+### Algorithm 1. SIRS
+
+**Input**: sparsity level $S,$ the number of iterations $L,$ the number of sequential steps $M \leq S$ and $\epsilon \in(0,1)$
+
+**Step 1** Set $k=0$
+
+**Step 2** Initialize $\beta^{(0)}=1$ and set $\ell=1$.
+
+**Step 3** $\operatorname{Set} \beta^{(\ell)} \leftarrow D \mathrm{X}^{T}\left(\mathrm{X} D \mathrm{X}^{T}\right)^{+} \mathrm{y}$ with $D=D\left(\beta^{(\ell-1)}\right)$ and $\ell \leftarrow \ell+1$
+
+**Step 4** Repeat step 3 until convergence or $\ell=L+1 .$ Denote the resulting vector as $\tilde{\boldsymbol{\beta}}$
+
+**Step 5** If $\|\tilde{\beta}\|_{0} \leq S,$ stop and return $\tilde{\beta}$. Otherwise, set $k \leftarrow k+1$ and repeat steps $2-4$ with $\beta^{(0)}=I\left(|\tilde{\beta}| \geq \gamma_{(k)}\right)+\epsilon I\left(|\tilde{\beta}|<\gamma_{(k)}\right)$ and $\gamma_{(k)}$ the $k$ th largest component of $|\tilde{\boldsymbol{\beta}}|,$ until stop or $k=M .$ Return $\tilde{\boldsymbol{\beta}}$.
+
+Some proerties of this algorithm have been proven, such as
+
+**1** If $\lim _{\ell \rightarrow \infty} \boldsymbol{\beta}^{(\ell)}$ exists, then it is a fixed point of the functional $\mathcal{F}: \mathscr{A} \rightarrow \mathscr{A}$
+
+$$
+\mathcal{F}(\boldsymbol{\gamma})=\underset{\boldsymbol{\beta} \in \mathcal{A}}{\arg \min } \boldsymbol{\beta}^{T} \boldsymbol{\Gamma}(\boldsymbol{\gamma}) \boldsymbol{\beta}
+$$
+where $\mathcal{A}=\left\{\boldsymbol{\beta} \in \mathbf{R}^{p}: \mathbf{y}=\mathbf{X} \boldsymbol{\beta}\right\}$ and $\boldsymbol{\Gamma}(\boldsymbol{\gamma})$ denotes $\boldsymbol{\Gamma}$ given by $\mathbf{D}=\mathbf{D}(\boldsymbol{\gamma})$
+
+**2** $\beta_{0}$ is always a fixed point of the functional $\mathcal{F}$.
+
+**3** Assume that $p>n, \operatorname{spark}(\mathbf{X})=n+1$ and $\left\|\boldsymbol{\beta}_{0}\right\|_{0}<(n+1) / 2$. Then for any
+fixed point $\boldsymbol{\beta}$ of the functional $\mathcal{F},$ we have $\boldsymbol{\beta}=\boldsymbol{\beta}_{0}$ or $\|\boldsymbol{\beta}\|_{0}>(n+1) / 2$
+
+My function `sirs` implements sparse recovery using the SIRS algorithm described aboved and `simu_sirs_geneartion` generates $X$ and $y$, where $X$ is $n \times p$ matrix with each row $i.i.d.$ from multi-variate normal distribution with a covariance matrix consisting of $1$ in its diagonal and $r$ in other positions, $y$ is the response for $X$ with first $s$ columns as its support and $\beta$ as its non-zero coefficients.
+
+```{r}
+set.seed(0)
+s <- 7; n<- 35; p <- 100; r <- 0.1; beta <- c(1,-0.5,0.7,-1.2,-0.9,3,0.55);
+data <- simu_sirs_generation(s,n,p,r,beta)
+X <- data[[1]]
+y <- data[[2]]
+a <- 0.5
+beta_hat <- sirs(X,y,a)
+sum(beta_hat!=0)
+beta_hat[1:s]
+```
+
+From the example shown above, the sirs algorithm functions well in sparse recovery. 
+
+Actually, to measure the performance of SIRS, a simulation was conducted 
+
+```{r,eval=FALSE}
+as <- c(0,0.05,0.1,0.2,1,2,5)
+rs <- c(0,0.2,0.5)
+beta <- c(1,-0.5,0.7,-1.2,-0.9,3,0.55)
+s <- 7
+n <- 35
+p <- 1000
+p_as <- length(as)
+p_rs <- length(rs)
+n_data_set <- 100;
+success_percent <- matrix(0,p_as,p_rs)
+
+for (i in 1:p_as){
+  for (j in 1:p_r){
+    a <- as[i]
+    r <- rs[j]
+    record <- 0
+    for (k in 1:n_data_set){
+      res <- simu_sirs_generation(s,n,p,r,beta)
+      X <- res[[1]]
+      y <- res[[2]]
+      beta_sirs <- sirs(X,y,a)
+      if (identical(beta_sirs[beta_sirs!=0],1:s)){
+        record <- record + 1
+      }
+    }
+    success_percent[i,j] <- record / n_data_set
+  }
+}
+```
+
+the results are given below:
+
+|| r = 0 | r = 0.2 | r = 0.5 | 
+|:---|:------|:-----|:--------|
+|a = 0| 0.51  |  0.55  |    0.59   |  
+|a = 0.05| 0.73  | 0.57 | 0.53   |  
+|a = 0.1| 0.63  | 0.71 |  0.59   |
+|a = 0.2| 0.70 | 0.61 | 0.64 |
+|a = 1| 0.63 | 0.60 | 0.50 |
+|a = 2 |0.51 | 0.45 | 0.36 |
+|a = 5|0.15 |0.14 | 0.08|
+
+In the simulation 1 of SICA paper, Lv and Fan also conducted sparse recovery using lasso and lla and showed superiority of SIRS algorithm. 
+
+
+## An anomaly detection method for monitoring devices in spatial statistics
+
+Fine Particulate matter($PM_{2.5}$) has gained increasing attention due to its adverse health effects to humans. We aggregated a 57-hour data consisting of 2042 AirBoxes around July 23rd to July 24th in 2019 from the Open Data Portal provided by the LASS community [@LASS]. The original data is available in this package with name `PMdata_original`. 
+
+To ensure data quality for managing a large network sensing system, anomaly detection is crucial. Anomalies can be classified into three main categories:
+
+* AirBoxes with relative higher measurements than those from their neighboring AirBoxes.
+* AirBoxes with relative lower measurements than those from their neighboring AirBoxes.
+* AirBoxes whose measurements have a higher variation than their neighboring AirBoxes.
+
+A method of automatically monitoring anomalous measurements by utilizing neighboring AirBox information was proposed [@Airboxes] with main procedures shown as follow:
+
+1. Firstly, consider a universal Kriging model with a class of multi-resolution spline basis functions [@FRK] as regressors and apply a robust method for parameter estimation.
+
+1. Secondly, Let $\{ {\hat{y}}_{t}(s):s \in D\}$ be the estimated $PM_{2.5}$ map obtained from universal Kriging at time t based on $z_{t} = (z_{t}(s_{1}),\ldots,z_{t}(s_{n}))$ observed at locations $\{s_{1},\ldots,s_{n}\}$, where $t = 1,\ldots,T$. Denote the standardized residuals as follows:
+$$r_{t}\left(s_{i}\right)=\frac{z_{t}\left(s_{i}\right)-\hat{y}_{t}\left(s_{i}\right)}{\hat{\sigma}_{t}\left(s_{i}\right)} ; \quad i=1, \ldots, n, t=1, \ldots, T $$
+where ${{\hat{\sigma}_{t}^2}(s_{i})}$ is an estimator of:
+$${\sigma_{t}}^2 (s_{i})= var(z_{t}(s_{i}) - \hat{y}_{t}(s_{i})) $$
+
+1. Thirdly, we rank the potential unusual AirBoxes according to the root mean square error(RMSE):
+$$\operatorname{RMSE}_{i}=\left\{\frac{1}{\left|T_{i}\right|} \sum_{t \in T_{i}}\left(r_{t}\left(\boldsymbol{s}_{i}\right)\right)^{2}\right\}^{1 / 2}$$
+and we can further decompose $RMSE_{i}$ in terms of squared bias $b_{i}^2$ and variance $V_{i}$ as follows:
+\begin{align*} 
+\mathrm{RMSE}_{i} &=\left(b_{i}^{2}+V_{i}\right)^{1 / 2} \\ b_{i} &=\frac{1}{\left|T_{i}\right|} \sum_{t \in T_{i}} r_{t}\left(\boldsymbol{s}_{i}\right), \\ V_{i} &=\frac{1}{\left|T_{i}\right|} \sum_{t \in T_{i}}\left\{r_{t}\left(\boldsymbol{s}_{i}\right)-\frac{1}{\left|T_{i}\right|} \sum_{t \in T_{i}} r_{t}\left(\boldsymbol{s}_{i}\right)\right\}^{2} 
+\end{align*}
+
+1. Lastly, we can classify the AirBoxes with high $RMSEs$ into three groups separated by the upper and lower control limits according to $b_{i}$.
+   * An AirBox with $b_{i}$ larger than the b threshold implies that its average standardized residual value is above the upper control limit.
+   * An AirBox with $b_{i}$ smaller than minus b threshold implies that its average standardized residual value is below the lower control limit.
+   * An airBox with high $RMSE_{i}$ but with $b_{i} \in (\text{minus b threshold},\text{b threshold})$ tends to have a higher variation than its neighboring AirBoxes.
+   
+
+To illustrate the usage of my code, here are some examples.
+
+```{r}
+data(PMdata_original)
+```
+
+Function `geo_anomaly` implement anomaly detection using the method described above.
+```{r,eval=FALSE}
+K <- 100; b_threshold <- 3; Rmse_threshold <- 4;
+l <- geo_anomaly(PMdata_original,K,b_threshold,Rmse_threshold)
+```
+
+Actually, for ease of creating vignette, I put the result of applying `geo_anomaly` to PMdata_original as "l" in the package.
+```{r}
+library(ggplot2)
+data(l)
+```
+
+```{r}
+PMdata_type <- cbind(PMdata_original,type = rep(1,nrow(PMdata_original)))
+for (i in 1:nrow(PMdata_original)){
+  if (PMdata_type[i,1] %in% l[[1]])
+    PMdata_type$type[i] <- 2
+  else{
+    if (PMdata_type[i,1] %in% l[[2]])
+      PMdata_type$type[i] <- 3
+    else{
+      if(PMdata_type[i,1] %in% l[[3]])
+        PMdata_type$type[i] <- 4
+    }
+  }
+}
+PMdata_type$type <- as.factor(PMdata_type$type)
+```
+
+Here are the locations of Airboxes with type 1 denoting normal Airboxes, type 2 denoting Airboxes with relatively high measurements than those of their neighboring Airboxes, type 3 denoting Airboxes with relatively low measurements than those of their neighboring Airboxes, type 4 denoting malfunctioned Airboxes or Airboxes in complicate environments.
+```{r}
+ggplot(PMdata_type,aes(x=lon,y=lat,color=type,shape=type))+
+  scale_color_manual(values = c("green","black","orange","red"))+
+  geom_point(size=1)+
+  coord_equal(ratio=1)+
+  labs(title="AirBox locations in Taiwan",x="longitude",y="latitude")+
+  theme(plot.title = element_text(hjust=0.5))
+```
+
+
+To better clarify the locations of Airboxes in different types, we plot them in different grids.
+```{r}
+ggplot(PMdata_type,aes(x=lon,y=lat))+
+  geom_point(size=1)+
+  facet_grid(.~type)+
+  labs(title="AirBox locations in Taiwan",x="longitude",y="latitude")+
+  theme(plot.title = element_text(hjust=0.5))
+```
+
+
+As is shown in the figure as follow, 18 of 2042 Airboxes are classified in type 2, 18 of 2042 Airboxes are classified in type 3 and 21 of 2042 Airboxes are classified in type 4.
+```{r}
+PMdata <- PMdata_original[,-1]
+plot(c(1,57),c(0,480),type = "n",xlab="Time",ylab="PM2.5",main = "Normal AirBoxes")
+ccolor <- c("green","blue","black","red")
+for (i in (1:(nrow(PMdata)))){
+  if (PMdata_type[i,]$type == 1)
+    lines(1:(ncol(PMdata)-2),PMdata[i,-c(1,2)],col=ccolor[PMdata_type[i,]$type])
+}
+
+plot(c(1,57),c(0,480),type = "n",xlab="Time",ylab="PM2.5",main = "AirBoxes with relatively high PM2.5")
+ccolor <- c("green","blue","black","red")
+for (i in (1:(nrow(PMdata)))){
+  if (PMdata_type[i,]$type == 2)
+    lines(1:(ncol(PMdata)-2),PMdata[i,-c(1,2)],col=ccolor[PMdata_type[i,]$type])
+}
+
+plot(c(1,57),c(0,480),type = "n",xlab="Time",ylab="PM2.5",main = "AirBoxes with relatively low PM2.5")
+ccolor <- c("green","blue","black","red")
+for (i in (1:(nrow(PMdata)))){
+  if (PMdata_type[i,]$type == 3)
+    lines(1:(ncol(PMdata)-2),PMdata[i,-c(1,2)],col=ccolor[PMdata_type[i,]$type])
+}
+
+plot(c(1,57),c(0,480),type = "n",xlab="Time",ylab="PM2.5",main = "Malfunctioed AirBoxes")
+ccolor <- c("green","blue","black","red")
+for (i in (1:(nrow(PMdata)))){
+  if (PMdata_type[i,]$type == 4)
+    lines(1:(ncol(PMdata)-2),PMdata[i,-c(1,2)],col=ccolor[PMdata_type[i,]$type])
+}
+```
+
+The method should have done a good job in detecting anomalous devices.
+
+## References
